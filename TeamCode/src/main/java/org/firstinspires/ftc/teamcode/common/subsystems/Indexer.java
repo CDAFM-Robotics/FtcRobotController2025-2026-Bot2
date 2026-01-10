@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -65,7 +66,7 @@ public class Indexer {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             if (!initialized) {
-                indexerServo.setPosition(position);
+                //indexerServo.setPosition(position);
                 initialized = true;
             }
 
@@ -128,10 +129,10 @@ public class Indexer {
 
         colorSensor1Left = hardwareMap.get(NormalizedColorSensor.class, "colorSensor1Left");
         colorSensor1Right = hardwareMap.get(NormalizedColorSensor.class, "colorSensor1Right");
-        //colorSensor2Left = hardwareMap.get(NormalizedColorSensor.class, "colorSensor2Left");
-        //colorSensor2Right = hardwareMap.get(NormalizedColorSensor.class, "colorSensor2Right");
-        //colorSensor3Left = hardwareMap.get(NormalizedColorSensor.class, "colorSensor3Left");
-        //colorSensor3Right = hardwareMap.get(NormalizedColorSensor.class, "colorSensor3Right");
+        colorSensor2Left = hardwareMap.get(NormalizedColorSensor.class, "colorSensor2Left");
+        colorSensor2Right = hardwareMap.get(NormalizedColorSensor.class, "colorSensor2Right");
+        colorSensor3Left = hardwareMap.get(NormalizedColorSensor.class, "colorSensor3Left");
+        colorSensor3Right = hardwareMap.get(NormalizedColorSensor.class, "colorSensor3Right");
 
         colorSensor1Left.setGain(8);
         colorSensor1Right.setGain(8);
@@ -274,6 +275,7 @@ public class Indexer {
         updateBallColors();
         return artifactColorArray.clone();
     }
+
 
     public double getIndexerPosition() {
         double position = indexerServo.getPosition();

@@ -22,11 +22,11 @@ public class DriveBase {
     private DcMotor frontRightMotor = null;
     private DcMotor backLeftMotor = null;
     private DcMotor backRightMotor = null;
-    private Servo leftKickStand = null;
-    private Servo rightKickStand = null;
-    private Servo kickStandLight = null;
+    //private Servo leftKickStand = null;
+    //private Servo rightKickStand = null;
+    //private Servo kickStandLight = null;
 
-    // private IMU imu;
+     private IMU imu;
 
     GoBildaPinpointDriver pinpoint;
     private Pose2D pos;
@@ -44,14 +44,14 @@ public class DriveBase {
         frontRightMotor = hardwareMap.get(DcMotor.class, "frontRightMotor");
         backLeftMotor = hardwareMap.get(DcMotor.class, "backLeftMotor");
         backRightMotor = hardwareMap.get(DcMotor.class, "backRightMotor");
-        rightKickStand = hardwareMap.get(Servo.class, "rightKickStand");
-        leftKickStand = hardwareMap.get(Servo.class, "leftKickStand");
-        kickStandLight = hardwareMap.get(Servo.class, "kickStandLight");
+        //rightKickStand = hardwareMap.get(Servo.class, "rightKickStand");
+        //leftKickStand = hardwareMap.get(Servo.class, "leftKickStand");
+        //kickStandLight = hardwareMap.get(Servo.class, "kickStandLight");
 
-        frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -59,11 +59,11 @@ public class DriveBase {
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // initialize the kick stand servos
-        rightKickStand.setPosition(0.5);
-        leftKickStand.setPosition(0.5);
+        //rightKickStand.setPosition(0.5);
+        //leftKickStand.setPosition(0.5);
 
         // ground lights OFF
-        kickStandLight.setPosition(0.0);
+        //kickStandLight.setPosition(0.0);
 
 
         // Get a reference to the sensor
@@ -100,15 +100,16 @@ public class DriveBase {
         pinpoint.resetPosAndIMU();
     }
 
+    //currently there is no pinpoint so im commenting them out so java doesnt yell at me. fieldcentric dont work rn
     public void setMotorPowers(double x, double y, double rx, double speed, boolean fieldCentric) {
-        pinpoint.update();
+        //.update();
         pos = pinpoint.getPosition();
 
 
         double heading;
         if (fieldCentric) {
-            // heading = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-            heading = -pos.getHeading(AngleUnit.RADIANS);
+             //heading = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+             heading = -pos.getHeading(AngleUnit.RADIANS);
         }
         else {
             heading = 0;
@@ -145,25 +146,25 @@ public class DriveBase {
     }
 
     public void setKickStand() {
-        rightKickStand.setPosition(0.0);
-        leftKickStand.setPosition(1.0);
+        //rightKickStand.setPosition(0.0);
+        //leftKickStand.setPosition(1.0);
     }
 
     public void resetKickStand() {
-        rightKickStand.setPosition(0.5);
-        leftKickStand.setPosition(0.5);
+        //rightKickStand.setPosition(0.5);
+        //leftKickStand.setPosition(0.5);
     }
 
     public void setKickStandLight() {
-        kickStandLight.setPosition(1.0);
+        //kickStandLight.setPosition(1.0);
     }
 
     public void resetKickStandLight(){
-        kickStandLight.setPosition(0.0);
+        //kickStandLight.setPosition(0.0);
     }
 
     public void adjustKickStandLight(double power){
-        kickStandLight.setPosition(power);
+        //kickStandLight.setPosition(power);
     }
 
 }

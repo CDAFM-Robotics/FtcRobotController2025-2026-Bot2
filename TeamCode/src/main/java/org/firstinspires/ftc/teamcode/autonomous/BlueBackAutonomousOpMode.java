@@ -32,11 +32,10 @@ public class BlueBackAutonomousOpMode extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         MecanumDrive md = new MecanumDrive(hardwareMap, /*new Pose2d(new Vector2d(61, 11.5), Math.toRadians(180))*/ new Pose2d(new Vector2d(61, -11.75), Math.toRadians(-90)));
         Robot robot = new Robot(hardwareMap, telemetry);
-        robot.getLauncher().setLimelightPipeline(Robot.LLPipelines.OBELISK.ordinal());
+        //robot.getLauncher().setLimelightPipeline(Robot.LLPipelines.OBELISK.ordinal());
         autonomousActionBuilder = new AutonomousActionBuilder(md, robot);
 
         trajectories = autonomousActionBuilder.getBlueFarTrajectories();
-
 
 
         ArtifactColor[] motif = null;
@@ -62,16 +61,16 @@ public class BlueBackAutonomousOpMode extends LinearOpMode {
         Gamepad currentGamepad2 = new Gamepad();
         Gamepad previousGamepad2 = new Gamepad();
 
-        while(opModeInInit()) {
+        while (opModeInInit()) {
 
-            motif = robot.getLauncher().getMotifPattern();
+            //motif = robot.getLauncher().getMotifPattern();
 
-            if (motif == null) {
-                telemetry.addData("  Motif Pattern", "Not Detected");
-            }
-            else {
-                telemetry.addData("  Motif Pattern", motif[0].toString() + ", " + motif[1].toString() + ", " + motif[2].toString());
-            }
+//            if (motif == null) {
+//                telemetry.addData("  Motif Pattern", "Not Detected");
+//            }
+//            else {
+//                telemetry.addData("  Motif Pattern", motif[0].toString() + ", " + motif[1].toString() + ", " + motif[2].toString());
+//            }
 
             previousGamepad1.copy(currentGamepad1);
             previousGamepad2.copy(currentGamepad2);
@@ -124,15 +123,11 @@ public class BlueBackAutonomousOpMode extends LinearOpMode {
                         secondMark = false;
                         loadingZone = true;
                     }
-                }
-
-                else if (selectedRow == 4) {
+                } else if (selectedRow == 4) {
                     secondMark = !secondMark;
-                }
-                else if (selectedRow == 3) {
+                } else if (selectedRow == 3) {
                     thirdMark = !thirdMark;
-                }
-                else if (selectedRow == 2) {
+                } else if (selectedRow == 2) {
                     loadingZone = !loadingZone;
                 }
             }
@@ -170,18 +165,14 @@ public class BlueBackAutonomousOpMode extends LinearOpMode {
                         secondMark = false;
                         loadingZone = true;
                     }
-                }
-
-                else if (selectedRow == 4) {
+                } else if (selectedRow == 4) {
                     secondMark = !secondMark;
                     if (secondMark && loadingZone) {
                         loadingZone = false;
                     }
-                }
-                else if (selectedRow == 3) {
+                } else if (selectedRow == 3) {
                     thirdMark = !thirdMark;
-                }
-                else if (selectedRow == 2) {
+                } else if (selectedRow == 2) {
                     loadingZone = !loadingZone;
                     if (secondMark && loadingZone) {
                         secondMark = false;
@@ -191,15 +182,13 @@ public class BlueBackAutonomousOpMode extends LinearOpMode {
 
             if (selectedRow == 0) {
                 telemetry.addData("> Delay", delay);
-            }
-            else {
+            } else {
                 telemetry.addData("    Delay", delay);
             }
 
             if (selectedRow == 1) {
                 telemetry.addData("> Play", play);
-            }
-            else {
+            } else {
                 telemetry.addData("    Play", play);
             }
 
@@ -207,25 +196,21 @@ public class BlueBackAutonomousOpMode extends LinearOpMode {
 
             if (selectedRow == 2) {
                 telemetry.addData("> Pickup in loading zone after", loadingZone);
-            }
-            else {
+            } else {
                 telemetry.addData("    Pickup in loading zone after", loadingZone);
             }
 
             if (selectedRow == 3) {
                 telemetry.addData("> Pickup Third Mark", thirdMark);
-            }
-            else {
+            } else {
                 telemetry.addData("    Pickup Third Mark", thirdMark);
             }
 
             if (selectedRow == 4) {
                 telemetry.addData("> Pickup Second Mark", secondMark);
-            }
-            else {
+            } else {
                 telemetry.addData("    Pickup Second Mark", secondMark);
             }
-
 
 
             telemetry.update();
@@ -240,159 +225,160 @@ public class BlueBackAutonomousOpMode extends LinearOpMode {
         //start always with G in launcher
 
         if (motif == null) {
-            motif = new ArtifactColor[] {ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE};
+            motif = new ArtifactColor[]{ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE};
         }
 
 
         // Go to the Launch Pose
 
-        Actions.runBlocking(new ParallelAction(
-            trajectories[0],
-            new SequentialAction(
-                new SleepAction(0.5),
-                autonomousActionBuilder.getSpinLauncherFar()
-            )
-        ));
+//        Actions.runBlocking(new ParallelAction(
+//                trajectories[0],
+//                new SequentialAction(
+//                        new SleepAction(0.5),
+//                        autonomousActionBuilder.getSpinLauncherFar()
+//                )
+//        ));
 
 
-        // Launch first 3
-        launchInMotifOrder(motif, 0);
-
-        // Pickup third mark
-
-        if (thirdMark) {
-
-            Actions.runBlocking(new SequentialAction(
-                new ParallelAction(
-                    trajectories[1],
-                    autonomousActionBuilder.getIndexIntakeAction(0),
-                    new SequentialAction(
-                        autonomousActionBuilder.getStartIntake(),
-                        autonomousActionBuilder.getWaitUntilBallInIndexer(4),
-                        autonomousActionBuilder.getIndexIntakeAction(1),
-                        autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
-                        autonomousActionBuilder.getIndexIntakeAction(2),
-                        autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
-                        autonomousActionBuilder.getSpinLauncherFar(),
-                        autonomousActionBuilder.getStopIntake()
-                    )
-                )
-            ));
-
-
-
-            launchInMotifOrder(motif, 0);
+//        // Launch first 3
+//        launchInMotifOrder(motif, 0);
+//
+//        // Pickup third mark
+//
+//        if (thirdMark) {
+//
+//            Actions.runBlocking(new SequentialAction(
+//                    new ParallelAction(
+//                            trajectories[1],
+//                            autonomousActionBuilder.getIndexIntakeAction(0),
+//                            new SequentialAction(
+//                                    autonomousActionBuilder.getStartIntake(),
+//                                    autonomousActionBuilder.getWaitUntilBallInIndexer(4),
+//                                    autonomousActionBuilder.getIndexIntakeAction(1),
+//                                    autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
+//                                    autonomousActionBuilder.getIndexIntakeAction(2),
+//                                    autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
+//                                    autonomousActionBuilder.getSpinLauncherFar(),
+//                                    autonomousActionBuilder.getStopIntake()
+//                            )
+//                    )
+//            ));
+//
+//
+//            launchInMotifOrder(motif, 0);
+//        }
+//
+//        if (secondMark) {
+//
+//            Actions.runBlocking(new SequentialAction(
+//                    new ParallelAction(
+//                            trajectories[2],
+//                            autonomousActionBuilder.getIndexIntakeAction(0),
+//                            new SequentialAction(
+//                                    new SleepAction(0.5),
+//                                    autonomousActionBuilder.getStartIntake(),
+//                                    autonomousActionBuilder.getWaitUntilBallInIndexer(4),
+//                                    autonomousActionBuilder.getIndexIntakeAction(1),
+//                                    autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
+//                                    autonomousActionBuilder.getIndexIntakeAction(2),
+//                                    autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
+//                                    autonomousActionBuilder.getSpinLauncherFar(),
+//                                    autonomousActionBuilder.getStopIntake()
+//                            )
+//                    )
+//            ));
+//
+//
+//            launchInMotifOrder(motif, 1);
+//
+//        }
+//
+//        if (loadingZone) {
+//            Actions.runBlocking(new SequentialAction(
+//                    new ParallelAction(
+//                            trajectories[5],
+//                            autonomousActionBuilder.getIndexIntakeAction(0),
+//                            new SequentialAction(
+//                                    new SleepAction(1.0),
+//                                    autonomousActionBuilder.getStartIntake(),
+//                                    autonomousActionBuilder.getWaitUntilBallInIndexer(4),
+//                                    autonomousActionBuilder.getIndexIntakeAction(1),
+//                                    autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
+//                                    autonomousActionBuilder.getIndexIntakeAction(2),
+//                                    autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
+//                                    autonomousActionBuilder.getSpinLauncherFar(),
+//                                    autonomousActionBuilder.getStopIntake()
+//                            )
+//                    )
+//            ));
+//            launchInMotifOrder(motif, 2);
+//
+//            if (!thirdMark && !secondMark) {
+//                Actions.runBlocking(new SequentialAction(
+//                        new ParallelAction(
+//                                autonomousActionBuilder.getBlueFarPickupLoadingZone(),
+//                                autonomousActionBuilder.getIndexIntakeAction(0),
+//                                new SequentialAction(
+//                                        new SleepAction(1.0),
+//                                        autonomousActionBuilder.getStartIntake(),
+//                                        autonomousActionBuilder.getWaitUntilBallInIndexer(4),
+//                                        autonomousActionBuilder.getIndexIntakeAction(1),
+//                                        autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
+//                                        autonomousActionBuilder.getIndexIntakeAction(2),
+//                                        autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
+//                                        autonomousActionBuilder.getSpinLauncherFar(),
+//                                        autonomousActionBuilder.getStopIntake()
+//                                )
+//                        )
+//                ));
+//                launchInMotifOrder(motif, 2);
+//            }
+//
+//            // Run Pickup again so drivers may have balls
+//
+//            Actions.runBlocking(new SequentialAction(
+//                    new ParallelAction(
+//                            autonomousActionBuilder.getBlueFarPickupLoadingZoneLeave(),
+//                            autonomousActionBuilder.getIndexIntakeAction(0),
+//                            new SequentialAction(
+//                                    new SleepAction(1.0),
+//                                    autonomousActionBuilder.getStartIntake(),
+//                                    autonomousActionBuilder.getWaitUntilBallInIndexer(4),
+//                                    autonomousActionBuilder.getIndexIntakeAction(1),
+//                                    autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
+//                                    autonomousActionBuilder.getIndexIntakeAction(2),
+//                                    autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
+//                                    autonomousActionBuilder.getSpinLauncherFar(),
+//                                    autonomousActionBuilder.getStopIntake()
+//                            )
+//                    )
+//            ));
+//        }
+//
+//        // LEave
+//
+//        Actions.runBlocking(new ParallelAction(
+//            trajectories[4]
+//        ));
+//
+//
+//
+//    }
+//
+//    public void launchInMotifOrder(ArtifactColor[] motifPattern, int greenLocation) {
+//        Actions.runBlocking(motifPattern[0] == ArtifactColor.GREEN ? autonomousActionBuilder.getIndexOutputAction(greenLocation) : autonomousActionBuilder.getIndexOutputAction(greenLocation == 0 ? 1 : 0));
+//        Actions.runBlocking(autonomousActionBuilder.getKickBall());
+//        Actions.runBlocking(autonomousActionBuilder.getResetKicker());
+//        Actions.runBlocking(motifPattern[1] == ArtifactColor.GREEN ? autonomousActionBuilder.getIndexOutputAction(greenLocation) : (motifPattern[0] == ArtifactColor.GREEN ? autonomousActionBuilder.getIndexOutputAction(greenLocation == 0 ? 1 : 0) : autonomousActionBuilder.getIndexOutputAction(greenLocation == 2 ? 1 : 2)));
+//        Actions.runBlocking(autonomousActionBuilder.getKickBall());
+//        Actions.runBlocking(autonomousActionBuilder.getResetKicker());
+//        Actions.runBlocking(motifPattern[2] == ArtifactColor.GREEN ? autonomousActionBuilder.getIndexOutputAction(greenLocation) : autonomousActionBuilder.getIndexOutputAction(greenLocation == 2 ? 1 : 2));
+//        Actions.runBlocking(autonomousActionBuilder.getKickBall());
+//        Actions.runBlocking(new ParallelAction(
+//            autonomousActionBuilder.getStopLauncher(),
+//            autonomousActionBuilder.getResetKicker()
+//        ));
+//    }
         }
-
-        if (secondMark) {
-
-            Actions.runBlocking(new SequentialAction(
-                new ParallelAction(
-                    trajectories[2],
-                    autonomousActionBuilder.getIndexIntakeAction(0),
-                    new SequentialAction(
-                        new SleepAction(0.5),
-                        autonomousActionBuilder.getStartIntake(),
-                        autonomousActionBuilder.getWaitUntilBallInIndexer(4),
-                        autonomousActionBuilder.getIndexIntakeAction(1),
-                        autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
-                        autonomousActionBuilder.getIndexIntakeAction(2),
-                        autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
-                        autonomousActionBuilder.getSpinLauncherFar(),
-                        autonomousActionBuilder.getStopIntake()
-                    )
-                )
-            ));
-
-
-            launchInMotifOrder(motif, 1);
-
-        }
-
-        if (loadingZone) {
-            Actions.runBlocking(new SequentialAction(
-                new ParallelAction(
-                    trajectories[5],
-                    autonomousActionBuilder.getIndexIntakeAction(0),
-                    new SequentialAction(
-                        new SleepAction(1.0),
-                        autonomousActionBuilder.getStartIntake(),
-                        autonomousActionBuilder.getWaitUntilBallInIndexer(4),
-                        autonomousActionBuilder.getIndexIntakeAction(1),
-                        autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
-                        autonomousActionBuilder.getIndexIntakeAction(2),
-                        autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
-                        autonomousActionBuilder.getSpinLauncherFar(),
-                        autonomousActionBuilder.getStopIntake()
-                    )
-                )
-            ));
-            launchInMotifOrder(motif, 2);
-
-            if (!thirdMark && !secondMark) {
-                Actions.runBlocking(new SequentialAction(
-                    new ParallelAction(
-                        autonomousActionBuilder.getBlueFarPickupLoadingZone(),
-                        autonomousActionBuilder.getIndexIntakeAction(0),
-                        new SequentialAction(
-                            new SleepAction(1.0),
-                            autonomousActionBuilder.getStartIntake(),
-                            autonomousActionBuilder.getWaitUntilBallInIndexer(4),
-                            autonomousActionBuilder.getIndexIntakeAction(1),
-                            autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
-                            autonomousActionBuilder.getIndexIntakeAction(2),
-                            autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
-                            autonomousActionBuilder.getSpinLauncherFar(),
-                            autonomousActionBuilder.getStopIntake()
-                        )
-                    )
-                ));
-                launchInMotifOrder(motif, 2);
-            }
-
-            // Run Pickup again so drivers may have balls
-
-            Actions.runBlocking(new SequentialAction(
-                new ParallelAction(
-                    autonomousActionBuilder.getBlueFarPickupLoadingZoneLeave(),
-                    autonomousActionBuilder.getIndexIntakeAction(0),
-                    new SequentialAction(
-                        new SleepAction(1.0),
-                        autonomousActionBuilder.getStartIntake(),
-                        autonomousActionBuilder.getWaitUntilBallInIndexer(4),
-                        autonomousActionBuilder.getIndexIntakeAction(1),
-                        autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
-                        autonomousActionBuilder.getIndexIntakeAction(2),
-                        autonomousActionBuilder.getWaitUntilBallInIndexer(1.5),
-                        autonomousActionBuilder.getSpinLauncherFar(),
-                        autonomousActionBuilder.getStopIntake()
-                    )
-                )
-            ));
-        }
-
-        // LEave
-
-        Actions.runBlocking(new ParallelAction(
-            trajectories[4]
-        ));
-
-
-
     }
 
-    public void launchInMotifOrder(ArtifactColor[] motifPattern, int greenLocation) {
-        Actions.runBlocking(motifPattern[0] == ArtifactColor.GREEN ? autonomousActionBuilder.getIndexOutputAction(greenLocation) : autonomousActionBuilder.getIndexOutputAction(greenLocation == 0 ? 1 : 0));
-        Actions.runBlocking(autonomousActionBuilder.getKickBall());
-        Actions.runBlocking(autonomousActionBuilder.getResetKicker());
-        Actions.runBlocking(motifPattern[1] == ArtifactColor.GREEN ? autonomousActionBuilder.getIndexOutputAction(greenLocation) : (motifPattern[0] == ArtifactColor.GREEN ? autonomousActionBuilder.getIndexOutputAction(greenLocation == 0 ? 1 : 0) : autonomousActionBuilder.getIndexOutputAction(greenLocation == 2 ? 1 : 2)));
-        Actions.runBlocking(autonomousActionBuilder.getKickBall());
-        Actions.runBlocking(autonomousActionBuilder.getResetKicker());
-        Actions.runBlocking(motifPattern[2] == ArtifactColor.GREEN ? autonomousActionBuilder.getIndexOutputAction(greenLocation) : autonomousActionBuilder.getIndexOutputAction(greenLocation == 2 ? 1 : 2));
-        Actions.runBlocking(autonomousActionBuilder.getKickBall());
-        Actions.runBlocking(new ParallelAction(
-            autonomousActionBuilder.getStopLauncher(),
-            autonomousActionBuilder.getResetKicker()
-        ));
-    }
-}

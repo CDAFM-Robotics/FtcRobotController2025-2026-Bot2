@@ -299,54 +299,54 @@ public class AutonomousActionBuilder {
         };
     }
 
-    public Action getSpinLauncherFar() {
-        return robot.getLauncher().getSpinLauncherAction(1420);  // was 1360 (27Dec25)
-    }
-
-    public Action getSpinLauncherClose() {
-        return robot.getLauncher().getSpinLauncherAction(1200);
-    }
-
-    public Action getLauncherIsReadyFar() {
-        return robot.getLauncher().getWaitUntilVelocityAction(1340, 1);
-    }
-
-    public Action getLauncherIsReadyClose() {
-        return robot.getLauncher().getWaitUntilVelocityAction(1160, 1);
-    }
-
-    public Action getStopLauncher() {
-        return robot.getLauncher().getStopLauncherAction();
-    }
-
-    // Output
-    public Action getIndexOutputAction(int indexPos) {
-        return indexPos == 0 ? robot.getIndexer().getGoToZeroBallOutputAction() : (indexPos == 1 ? robot.getIndexer().getGoToOneBallOutputAction() : robot.getIndexer().getGoToTwoBallOutputAction());
-    }
-
-    // Intake
-    public Action getIndexIntakeAction(int indexPos) {
-        return indexPos == 0 ? robot.getIndexer().getGotoZeroBallIntakeAction() : (indexPos == 1 ? robot.getIndexer().getGoToOneBallIntakeAction() : robot.getIndexer().getGoToTwoBallIntakeAction());
-    }
-
-
-    public Action getKickBall() {
-        return robot.getLauncher().getKickBallAction();
-    }
-
-    public Action getResetKicker() {
-        return robot.getLauncher().getResetKickerAction();
-    }
-
-    public Action getStartIntake() {
-        return robot.getIntake().getStartIntakeAction();
-    }
-
-    public Action getStopIntake() {
-        return robot.getIntake().getStopIntakeAction();
-    }
-
-    public Action getWaitUntilBallInIndexer(double timeout) {
-        return robot.getIndexer().getWaitUntilBallInIndexerAction(timeout);
-    }
+//    public Action getSpinLauncherFar() {
+//        return robot.getLauncher().getSpinLauncherAction(1420);  // was 1360 (27Dec25)
+//    }
+//
+//    public Action getSpinLauncherClose() {
+//        return robot.getLauncher().getSpinLauncherAction(1200);
+//    }
+//
+//    public Action getLauncherIsReadyFar() {
+//        return robot.getLauncher().getWaitUntilVelocityAction(1340, 1);
+//    }
+//
+//    public Action getLauncherIsReadyClose() {
+//        return robot.getLauncher().getWaitUntilVelocityAction(1160, 1);
+//    }
+//
+//    public Action getStopLauncher() {
+//        return robot.getLauncher().getStopLauncherAction();
+//    }
+//
+//    // Output
+//    public Action getIndexOutputAction(int indexPos) {
+//        return indexPos == 0 ? robot.getIndexer().getGoToZeroBallOutputAction() : (indexPos == 1 ? robot.getIndexer().getGoToOneBallOutputAction() : robot.getIndexer().getGoToTwoBallOutputAction());
+//    }
+//
+//    // Intake
+//    public Action getIndexIntakeAction(int indexPos) {
+//        return indexPos == 0 ? robot.getIndexer().getGotoZeroBallIntakeAction() : (indexPos == 1 ? robot.getIndexer().getGoToOneBallIntakeAction() : robot.getIndexer().getGoToTwoBallIntakeAction());
+//    }
+//
+//
+//    public Action getKickBall() {
+//        return robot.getLauncher().getKickBallAction();
+//    }
+//
+//    public Action getResetKicker() {
+//        return robot.getLauncher().getResetKickerAction();
+//    }
+//
+//    public Action getStartIntake() {
+//        return robot.getIntake().getStartIntakeAction();
+//    }
+//
+//    public Action getStopIntake() {
+//        return robot.getIntake().getStopIntakeAction();
+//    }
+//
+//    public Action getWaitUntilBallInIndexer(double timeout) {
+//        return robot.getIndexer().getWaitUntilBallInIndexerAction(timeout);
+//    }
 }
