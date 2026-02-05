@@ -18,6 +18,8 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Launcher;
 public class DriverControlWithIndexerRedTeleOp extends LinearOpMode {
     public boolean isRedSide = true;
 
+
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -72,6 +74,7 @@ public class DriverControlWithIndexerRedTeleOp extends LinearOpMode {
 
             timeSinceLastIncident.reset();
 
+
             // Drive Base
 
             if (currentGamepad1.left_stick_button && !previousGamepad1.left_stick_button){
@@ -97,7 +100,7 @@ public class DriverControlWithIndexerRedTeleOp extends LinearOpMode {
             }
 
             if(launcherTurning && currentGamepad2.left_stick_x == 0){
-                robot.getLauncher().setRotatorServoPower(robot.getLauncher().setTargetRotatorVoltage(.7, aimTimer));
+                robot.getLauncher().setRotatorServoPower(robot.getLauncher().setTargetRotatorVoltage(0, aimTimer));
                 telemetry.addLine("turning!!!");
             }
             else{
@@ -116,6 +119,10 @@ public class DriverControlWithIndexerRedTeleOp extends LinearOpMode {
             telemetry.addData("Servo Power", robot.getLauncher().getRawRotatorServoPower());
             telemetry.addData("servo position", robot.getLauncher().getRotatorServoPosition());
             telemetry.addData("servo voltage", robot.getLauncher().getRotatorServoVoltage());
+            telemetry.addData("target servo position", robot.getLauncher().convertFromDegreesToVoltage(0));
+            telemetry.addData("current quadrant", robot.getLauncher().getCurrentQuadrantOfRotatorServo());
+            telemetry.addData("error", robot.getLauncher().error());
+
 
 // The drivers requested the aiming function to be merged with shooting
 

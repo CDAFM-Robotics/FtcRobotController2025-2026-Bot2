@@ -5,31 +5,18 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.SleepAction;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.common.Robot;
-import org.firstinspires.ftc.teamcode.common.util.ArtifactColor;
-import org.firstinspires.ftc.teamcode.common.util.RunTimeoutAction;
-import org.firstinspires.ftc.teamcode.common.util.WaitUntilAction;
 
-import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 @Config
@@ -46,10 +33,18 @@ public class Launcher {
     private Limelight3A limelight;
 
     Servo kickerServo;
-    CRServo RotatorServo;
+    CRServo turretServo;
     Servo hoodServo;
     AnalogInput RSFeedback;
-    
+
+    public enum QuadrantRotatorServo{
+        POSITIVE, NEGATIVE, ZERO
+    }
+
+    QuadrantRotatorServo currentQuadrant;
+
+    double lastServoPosition;
+
     public final double POSITION_KICKER_SERVO_KICK_BALL = 0.88;
     public final double POSITION_KICKER_SERVO_INIT = 0.6;
 
@@ -84,9 +79,9 @@ public class Launcher {
     public static double shootKi = 1.5;
     public static double shootKd = 10; //4;
     public static double shootKf = 1.1;
-    public static double rotateKp = 1;
-    public static double rotateKi = 0.5;
-    public static double rotateKd = 0.05;
+    public static double rotateKp = 0.1;
+    public static double rotateKi = 0;
+    public static double rotateKd = 0;
     public static double rotateKf = 0;
     public static double targetVelocity;
     public static double currentVelocity;
@@ -274,8 +269,8 @@ public class Launcher {
 //        launcherMotor2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfNew);
 
         //kickerServo = hardwareMap.get(Servo.class, "kickerServo");
-        RotatorServo = hardwareMap.get(CRServo.class, "RotatorServo");
-        RSFeedback = hardwareMap.get(AnalogInput.class, "RotatorServoFeedback");
+        turretServo = hardwareMap.get(CRServo.class, "turretServo");
+        RSFeedback = hardwareMap.get(AnalogInput.class, "turretAnalog");
         hoodServo = hardwareMap.get(Servo.class, "hoodServo");
 
         hoodServo.setDirection(Servo.Direction.REVERSE);
@@ -363,31 +358,53 @@ public class Launcher {
 //    }
 
     public double getRawRotatorServoPower(){
-        double output = RotatorServo.getPower();
+        double output = turretServo.getPower();
         return output;
     }
 
     public double getRotatorServoPosition(){
         double currentVoltage = RSFeedback.getVoltage();
-        double maxVoltage = 3.3;
-        double position = currentVoltage*54.54545454545454545454545454;
-        return  position / 2;
+        double degrees = currentVoltage * (180/3.3);
+        return  degrees;
     }
 
+    public double convertFromDegreesToVoltage(double degrees){
+        return degrees * (3.3/180);
+    }
+
+
     public double getRotatorServoVoltage(){
-        return RSFeedback.getVoltage() / 2;
+        return RSFeedback.getVoltage();
     }
 
     public void setRotatorServoPower(double power){
-            RotatorServo.setPower(power);
+        turretServo.setPower(power);
+
+        if(power > 0 && getRotatorServoPosition() >= 180){
+            currentQuadrant = QuadrantRotatorServo.POSITIVE;
+        }
+        else if(power < 0 && (lastServoPosition - getRotatorServoPosition()) < -0.5){
+            currentQuadrant = QuadrantRotatorServo.NEGATIVE;
+        }
+        else if (getRotatorServoPosition() == 0){
+            currentQuadrant = QuadrantRotatorServo.ZERO;
+        }
+
+        lastServoPosition = getRotatorServoPosition();
     }
 
-    public double setTargetRotatorVoltage(double targetVoltage, ElapsedTime timer){
-        double error = (targetVoltage / 2) - (RSFeedback.getVoltage() / 2);
+    public double error() {return  lastServoPosition - getRotatorServoPosition();}
+
+    public QuadrantRotatorServo getCurrentQuadrantOfRotatorServo(){return currentQuadrant;}
+
+    public double setTargetRotatorVoltage(double targetDegrees, ElapsedTime timer){
+        double targetVoltage = convertFromDegreesToVoltage(targetDegrees);
+        double error = (targetVoltage) - (RSFeedback.getVoltage());
         rotateIntegralSum += error*timer.seconds();
         double derivative = (error - lastError) / timer.seconds();
-        double output = (rotateKp * error) + (rotateKi * integralSum) + (rotateKd * derivative);
+        double output = (rotateKp * error) + (rotateKi * rotateIntegralSum) + (rotateKd * derivative);
         lastError = error;
+        timer.reset();
 
         return Range.clip(output, -1, 1);
     }
