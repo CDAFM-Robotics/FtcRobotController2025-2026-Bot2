@@ -18,6 +18,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -45,6 +47,7 @@ public class Launcher {
 
     Servo kickerServo;
     CRServo RotatorServo;
+    Servo hoodServo;
     AnalogInput RSFeedback;
     
     public final double POSITION_KICKER_SERVO_KICK_BALL = 0.88;
@@ -69,15 +72,22 @@ public class Launcher {
     public static double aimErrorTolerance = 0; // 3
     private double lastTime;
     private double integralSum = 0.0;
+
+    private double rotateIntegralSum = 0.0;
     // Limits for integral sum to prevent windup
     private double integralSumMax = 1.0;
     private double integralSumMin = -1.0;
     private double lastError = 0.0;
+    private double lastErrorRotator = 0.0;
 
     public static double shootKp = 250; //25;
     public static double shootKi = 1.5;
     public static double shootKd = 10; //4;
     public static double shootKf = 1.1;
+    public static double rotateKp = 1;
+    public static double rotateKi = 0.5;
+    public static double rotateKd = 0.05;
+    public static double rotateKf = 0;
     public static double targetVelocity;
     public static double currentVelocity;
 
@@ -266,6 +276,9 @@ public class Launcher {
         //kickerServo = hardwareMap.get(Servo.class, "kickerServo");
         RotatorServo = hardwareMap.get(CRServo.class, "RotatorServo");
         RSFeedback = hardwareMap.get(AnalogInput.class, "RotatorServoFeedback");
+        hoodServo = hardwareMap.get(Servo.class, "hoodServo");
+
+        hoodServo.setDirection(Servo.Direction.REVERSE);
 
         //kickerServo.setPosition(POSITION_KICKER_SERVO_INIT);
 
@@ -354,14 +367,43 @@ public class Launcher {
         return output;
     }
 
+    public double getRotatorServoPosition(){
+        double currentVoltage = RSFeedback.getVoltage();
+        double maxVoltage = 3.3;
+        double position = currentVoltage*54.54545454545454545454545454;
+        return  position / 2;
+    }
 
-    public void setRotatorServoDirection(double direction){
-        if(direction < 0)
-            RotatorServo.setPower(1);
-        if(direction > 0)
-            RotatorServo.setPower(-1);
-        if(direction == 0)
-            RotatorServo.setPower(0);
+    public double getRotatorServoVoltage(){
+        return RSFeedback.getVoltage() / 2;
+    }
+
+    public void setRotatorServoPower(double power){
+            RotatorServo.setPower(power);
+    }
+
+    public double setTargetRotatorVoltage(double targetVoltage, ElapsedTime timer){
+        double error = (targetVoltage / 2) - (RSFeedback.getVoltage() / 2);
+        rotateIntegralSum += error*timer.seconds();
+        double derivative = (error - lastError) / timer.seconds();
+        double output = (rotateKp * error) + (rotateKi * integralSum) + (rotateKd * derivative);
+        lastError = error;
+
+        return Range.clip(output, -1, 1);
+    }
+
+    public void setHoodServoPosition(double position){
+        hoodServo.setPosition(position);
+    }
+
+    public double getHoodServoPosition(){return hoodServo.getPosition();}
+
+    public void setHoodServoDirection(double direction){
+        if(direction > 0.05)
+            hoodServo.setPosition(hoodServo.getPosition() - 0.05);
+        else if (direction < -0.05) {
+            hoodServo.setPosition(hoodServo.getPosition() + 0.05);
+        }
     }
     
 //    public void kickBall() {

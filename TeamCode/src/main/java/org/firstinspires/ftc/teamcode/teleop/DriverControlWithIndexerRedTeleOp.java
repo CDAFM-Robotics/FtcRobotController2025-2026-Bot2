@@ -36,6 +36,8 @@ public class DriverControlWithIndexerRedTeleOp extends LinearOpMode {
         boolean aprilTagInView = false;
         double xAngle = 0.0;
         boolean llLastIsValid = false;
+        double power = 0;
+        boolean launcherTurning = false;
 
         Gamepad currentGamepad1 = new Gamepad();
         Gamepad previousGamepad1 = new Gamepad();
@@ -88,8 +90,32 @@ public class DriverControlWithIndexerRedTeleOp extends LinearOpMode {
             if (currentGamepad1.right_bumper != previousGamepad1.right_bumper) {
                 driveSpeed = driveSpeed == 1 ? 0.5 : 1;
             }
-            robot.getLauncher().setRotatorServoDirection(gamepad2.left_stick_x);
-            telemetry.addData("Servo Position", robot.getLauncher().getRawRotatorServoPower());
+
+            if(currentGamepad2.b && !previousGamepad2.b){
+                launcherTurning = true;
+                telemetry.addLine("pressed!!!");
+            }
+
+            if(launcherTurning && currentGamepad2.left_stick_x == 0){
+                robot.getLauncher().setRotatorServoPower(robot.getLauncher().setTargetRotatorVoltage(.7, aimTimer));
+                telemetry.addLine("turning!!!");
+            }
+            else{
+                power = currentGamepad2.left_stick_x * 0.5;
+                robot.getLauncher().setRotatorServoPower(power);
+                launcherTurning = false;
+            }
+
+            if(currentGamepad2.dpad_up && !previousGamepad2.dpad_up){
+                robot.getLauncher().setHoodServoPosition(0.5);
+            }
+            robot.getLauncher().setHoodServoDirection(gamepad2.right_stick_y);
+
+            telemetry.addData("hood servo pos", robot.getLauncher().getHoodServoPosition());
+            telemetry.addLine("/////////////////////////////////////////////////////////");
+            telemetry.addData("Servo Power", robot.getLauncher().getRawRotatorServoPower());
+            telemetry.addData("servo position", robot.getLauncher().getRotatorServoPosition());
+            telemetry.addData("servo voltage", robot.getLauncher().getRotatorServoVoltage());
 
 // The drivers requested the aiming function to be merged with shooting
 
